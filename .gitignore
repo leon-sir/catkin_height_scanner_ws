@@ -1,5 +1,8 @@
 /build_isolated/*
+/build/*
 /devel_isolated/*
+/devel/*
 /install_isolated/*
+/install/*
 /logs/*
 /.catkin_tools/*

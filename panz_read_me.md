@@ -62,14 +62,19 @@ git clone https://github.com/anybotics/kindr_ros.git
 git clone https://github.com/anybotics/elevation_mapping.git
 git clone https://github.com/ANYbotics/message_logger.git
 git clone https://github.com/ros/geometry.git
+git clone https://github.com/anybotics/point_cloud_io.git (可选，用来可视化的)
 
 
-cd ..
+
+<!-- cd ..
 catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release
 catkin build kindr_msgs kindr_ros kindr_rviz_plugins multi_dof_joint_trajectory_rviz_plugins message_logger geometry 
-catkin build elevation_mapping
+catkin build elevation_mapping -->
+
+git submodule add https://github.com/Livox-SDK/livox_ros_driver2.git src/livox_ros_driver2
 
 # 还要装个lidar ros驱动
+git clone https://github.com/Livox-SDK/livox_ros_driver2.git src/livox_ros_driver2
 cd src/livox_ros_driver2
 source /opt/ros/noetic/setup.sh
 ./build.sh ROS1 
@@ -95,8 +100,27 @@ if [ $ROS_VERSION = ${VERSION_ROS1} ]; then
 ./build.sh ROS1 
 ***
 
+```bash
 source devel_isolated/setup.bash
-roslaunch elevation_mapping_demos test_demo.launch
+```
+
+调整激光雷达高度姿态
+```bash
+roslaunch livox_ros_driver2 rviz_MID360.launch
+```
+调整 src/livox_ros_driver2/config/MID360_config.json 
+"lidar_configs" : [
+    {
+      "ip" : "192.168.1.173",
+      "pcl_data_type" : 1,
+      "pattern_mode" : 0,
+      "extrinsic_parameter" : {
+        "roll": XXX.0,
+        "pitch": XXX.0,
+        "yaw": ...
+
+roslaunch elevation_mapping_demos ground_truth_demo.launch
+
 
 
 

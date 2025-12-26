@@ -1,0 +1,21 @@
+[submodule "src/kindr_ros"]
+	path = src/kindr_ros
+	url = https://github.com/anybotics/kindr_ros.git
+[submodule "src/elevation_mapping"]
+	path = src/elevation_mapping
+	url = https://github.com/anybotics/elevation_mapping.git
+[submodule "src/message_logger"]
+	path = src/message_logger
+	url = https://github.com/ANYbotics/message_logger.git
+[submodule "src/kindr"]
+	path = src/kindr
+	url = https://github.com/anybotics/kindr.git
+[submodule "src/geometry"]
+	path = src/geometry
+	url = https://github.com/ros/geometry.git
+[submodule "src/point_cloud_io"]
+	path = src/point_cloud_io
+	url = https://github.com/anybotics/point_cloud_io.git
+[submodule "src/livox_ros_driver2"]
+	path = src/livox_ros_driver2
+	url = https://github.com/Livox-SDK/livox_ros_driver2.git
