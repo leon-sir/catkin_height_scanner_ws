@@ -1,0 +1,68 @@
+<launch>
+    <!-- Livox MID360 驱动 -->
+    <arg name="xfer_format" default="0"/>
+    <arg name="multi_topic" default="0"/>
+    <arg name="data_src" default="0"/>
+    <arg name="publish_freq" default="10.0"/>
+    <arg name="output_type" default="0"/>
+    <arg name="msg_frame_id" default="livox_raw"/>
+    
+    <!-- 点云高度过滤参数 (相对于雷达坐标系) -->
+    <!-- 雷达安装高度1.2m，只保留1m以下的点云，即z值范围: [-1.5, -0.2] -->
+    <!-- -1.5m 对应地面以下0.3m，-0.2m 对应雷达下方1m处 -->
+    <arg name="filter_z_min" default="-1.5"/>
+    <arg name="filter_z_max" default="-0.2"/>
+    
+    <param name="xfer_format" value="$(arg xfer_format)"/>
+    <param name="multi_topic" value="$(arg multi_topic)"/>
+    <param name="data_src" value="$(arg data_src)"/>
+    <param name="publish_freq" type="double" value="$(arg publish_freq)"/>
+    <param name="output_data_type" value="$(arg output_type)"/>
+    <param name="user_config_path" type="string" value="$(find livox_ros_driver2)/config/MID360_config.json"/>
+    <param name="frame_id" type="string" value="$(arg msg_frame_id)"/>
+    
+    <node name="livox_lidar_publisher2" pkg="livox_ros_driver2"
+          type="livox_ros_driver2_node" required="true" output="screen"/>
+
+    <!-- TF 树: map -> livox_frame -> livox_raw -->
+    <!-- livox_frame 是机器人坐标系（符合 ROS 标准） -->
+    <node pkg="tf" type="static_transform_publisher" name="base_to_map" output="screen"
+          args="0 0 1.2 0 0 0 map livox_frame 100"/>
+    
+    <!-- livox_raw 是雷达原始坐标系
+         雷达 pitch 90° 向下安装，原始 X 轴指向地面
+         需要绕 Y 轴旋转 90° (1.5708 rad) 使 Z 轴向上指向天空
+         注意：pitch 旋转是绕 Y 轴，正值是逆时针（右手定则）-->
+    <node pkg="tf" type="static_transform_publisher" name="livox_raw_to_frame" output="screen"
+          args="0 0 0 0 0 0 livox_frame livox_raw 100"/>
+
+    <!-- 点云高度滤波: 过滤掉天花板等高处点云，只保留1m以下的点 -->
+    <!-- 使用 nodelet manager 提高效率 -->
+    <node pkg="nodelet" type="nodelet" name="pcl_manager" args="manager" output="screen"/>
+    
+    <!-- PassThrough 滤波器: 基于Z轴高度过滤 -->
+    <node pkg="nodelet" type="nodelet" name="passthrough_z" 
+          args="load pcl/PassThrough pcl_manager" output="screen">
+        <remap from="~input" to="/livox/lidar"/>
+        <remap from="~output" to="/livox/lidar_filtered"/>
+        <rosparam>
+            filter_field_name: z
+            filter_limit_min: -1.5
+            filter_limit_max: 0.3
+            filter_limit_negative: false
+            input_frame: livox_frame
+            output_frame: livox_frame
+        </rosparam>
+    </node>
+
+    <!-- Elevation Mapping (使用本包的配置文件) -->
+    <node pkg="elevation_mapping" type="elevation_mapping" name="elevation_mapping" output="screen">
+        <rosparam command="load" file="$(find mid_360_elevation_mapping)/config/robots/mid360_robot.yaml" />
+        <rosparam command="load" file="$(find mid_360_elevation_mapping)/config/elevation_maps/long_range.yaml" />
+        <rosparam command="load" file="$(find elevation_mapping_demos)/config/postprocessing/postprocessor_pipeline.yaml" />
+    </node>
+
+    <!-- RViz -->
+    <node name="rviz" pkg="rviz" type="rviz" 
+          args="-d $(find mid_360_elevation_mapping)/rviz/elevation_map_visualization.rviz"/>
+</launch>

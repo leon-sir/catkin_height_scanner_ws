@@ -158,6 +158,7 @@ mid360设置：
           		args="0 0 0 0 0 0 livox_frame livox_raw 100"/>
 
 过滤点云：
+```bash
 mid360_elevation_mapping.launch
     <node pkg="nodelet" type="nodelet" name="passthrough_z" 
           args="load pcl/PassThrough pcl_manager" output="screen">
@@ -172,7 +173,7 @@ mid360_elevation_mapping.launch
             output_frame: livox_frame
         </rosparam>
     </node>
-    
+```  
 延迟：
 mid360_robot.yaml:
 
@@ -183,4 +184,5 @@ long_range.yaml:
 
 resolution: 0.1 - 分辨率从0.05m改为0.1m（减少计算量，如果需要精度可以改回去）
 scanning_duration: 0.05 - 添加扫描持续时间参数 
+
 

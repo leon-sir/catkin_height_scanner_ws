@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>mid_360_elevation_mapping</name>
+  <version>1.0.0</version>
+  <description>MID360 LiDAR elevation mapping configuration package</description>
+
+  <maintainer email="your@email.com">Your Name</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>elevation_mapping</exec_depend>
+  <exec_depend>livox_ros_driver2</exec_depend>
+  <exec_depend>rviz</exec_depend>
+  <exec_depend>tf</exec_depend>
+  <exec_depend>nodelet</exec_depend>
+  <exec_depend>pcl_ros</exec_depend>
+
+</package>

@@ -1,0 +1,38 @@
+input_sources:
+  mid360_lidar:
+    type: pointcloud
+    topic: /livox/lidar_filtered
+    queue_size: 1
+    publish_on_update: true
+    sensor_processor:
+      type: laser
+      min_radius: 0.1
+      beam_angle: 0.001
+      beam_constant: 0.002
+
+map_frame_id: "map"
+robot_base_frame_id: "livox_frame"
+robot_pose_with_covariance_topic: ""
+robot_pose_cache_size: 200
+track_point_frame_id: "livox_frame"
+track_point_x: 0.0
+track_point_y: 0.0
+track_point_z: 0.0
+
+# ===== 延迟优化参数 =====
+# 最小更新频率 (Hz)，设置高一些减少延迟
+min_update_rate: 10000.0
+# 时间容差 (秒)，设置小一些让系统更快响应
+time_tolerance: 0.1
+# 融合地图发布频率 (Hz)，提高发布速度
+fused_map_publishing_rate: 10000.0
+# 点云时间偏移补偿
+time_offset_for_point_cloud: 0.0
+
+# 传感器距离范围 (MID360: 0.1m - 40m)
+sensor_cutoff_min_depth: 0.1
+sensor_cutoff_max_depth: 40.0
+
+# 高度过滤范围（相对于机器人基座 livox_frame，在 map 坐标系中）
+sensor_processor/ignore_points_above: 0.0
+sensor_processor/ignore_points_below: -1.5
