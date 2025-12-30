@@ -49,6 +49,10 @@ cd build/samples/livox_lidar_quick_start
 # ros工作目录
 # elevation map 安装
 
+## 可选直接安装所有模块（照1005环境配的）
+git clone --recurse-submodules https://github.com/leon-sir/catkin_height_scanner_ws.git
+
+
 安装依赖
 sudo apt-get install libpcl-dev
 sudo apt-get install libeigen3-dev
@@ -56,14 +60,28 @@ sudo apt-get install ros-$ROS_DISTRO-grid-map
 其他依赖
 sudo apt-get install ros-$ROS_DISTRO-eigen-conversions
 
+## 逐个安葬并修改
 cd <your-ros-ws>/src
 git clone https://github.com/anybotics/kindr.git
-git clone https://github.com/anybotics/kindr_ros.git
-git clone https://github.com/anybotics/elevation_mapping.git
-git clone https://github.com/ANYbotics/message_logger.git
-git clone https://github.com/ros/geometry.git
-git clone https://github.com/anybotics/point_cloud_io.git (可选，用来可视化的)
+git clone git@github.com:anybotics/kindr.git
 
+git clone https://github.com/anybotics/kindr_ros.git
+git clone git@github.com:anybotics/kindr_ros.git
+
+git clone https://github.com/anybotics/elevation_mapping.git
+git clone git@github.com:anybotics/elevation_mapping.git
+
+git clone https://github.com/ANYbotics/message_logger.git
+git clone git@github.com:ANYbotics/message_logger.git
+
+git clone https://github.com/ros/geometry.git
+git clone git@github.com:ros/geometry.git
+
+git clone https://github.com/anybotics/point_cloud_io.git (可选，用来可视化的)
+git clone git@github.com:anybotics/point_cloud_io.git
+
+git clone https://github.com/Livox-SDK/livox_ros_driver2.git
+git clone git@github.com:Livox-SDK/livox_ros_driver2.git
 
 
 <!-- cd ..
@@ -71,10 +89,8 @@ catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release
 catkin build kindr_msgs kindr_ros kindr_rviz_plugins multi_dof_joint_trajectory_rviz_plugins message_logger geometry 
 catkin build elevation_mapping -->
 
-git submodule add https://github.com/Livox-SDK/livox_ros_driver2.git src/livox_ros_driver2
-
 # 还要装个lidar ros驱动
-git clone https://github.com/Livox-SDK/livox_ros_driver2.git src/livox_ros_driver2
+# git clone https://github.com/Livox-SDK/livox_ros_driver2.git
 cd src/livox_ros_driver2
 source /opt/ros/noetic/setup.sh
 ./build.sh ROS1 
@@ -105,9 +121,7 @@ source devel_isolated/setup.bash
 ```
 
 调整激光雷达高度姿态
-```bash
-roslaunch livox_ros_driver2 rviz_MID360.launch
-```
+
 调整 src/livox_ros_driver2/config/MID360_config.json 
 "lidar_configs" : [
     {
@@ -119,11 +133,54 @@ roslaunch livox_ros_driver2 rviz_MID360.launch
         "pitch": XXX.0,
         "yaw": ...
 
+```bash
+roslaunch livox_ros_driver2 rviz_MID360.launch
+```
+
 roslaunch elevation_mapping_demos ground_truth_demo.launch
+roslaunch elevation_mapping_demos mid360_elevation_mapping.launch
 
 
+mid360设置：
+旋转：MID360_config.json 
+		      "extrinsic_parameter" : {
+					"roll": 0.0,
+					"pitch": 90.0,
+					"yaw": 0.0,
+					"x": 0,
+					"y": 0,
+					"z": 0
 
 
+	或者
+	mid360_elevation_mapping.launch 
+	     <node pkg="tf" type="static_transform_publisher" 			name="livox_raw_to_frame" output="screen"
+          		args="0 0 0 0 0 0 livox_frame livox_raw 100"/>
 
+过滤点云：
+mid360_elevation_mapping.launch
+    <node pkg="nodelet" type="nodelet" name="passthrough_z" 
+          args="load pcl/PassThrough pcl_manager" output="screen">
+        <remap from="~input" to="/livox/lidar"/>
+        <remap from="~output" to="/livox/lidar_filtered"/>
+        <rosparam>
+            filter_field_name: z
+            filter_limit_min: -1.5
+            filter_limit_max: 0.3
+            filter_limit_negative: false
+            input_frame: livox_frame
+            output_frame: livox_frame
+        </rosparam>
+    </node>
+    
+延迟：
+mid360_robot.yaml:
 
+min_update_rate: 10.0 - 最小更新频率从默认2Hz提高到10Hz
+time_tolerance: 0.1 - 时间容差从1秒降到0.1秒
+fused_map_publishing_rate: 10.0 - 融合地图发布频率提高到10Hz
+long_range.yaml:
+
+resolution: 0.1 - 分辨率从0.05m改为0.1m（减少计算量，如果需要精度可以改回去）
+scanning_duration: 0.05 - 添加扫描持续时间参数 
 

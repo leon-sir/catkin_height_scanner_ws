@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "/home/pc/catkin_height_scanner_ws/src/kindr/doc/doxygen"
+    "cmake.sourceDirectory": "/home/pc/catkin_height_scanner_ws/src/kindr/doc/doxygen",
+    "kiroAgent.configureMCP": "Disabled"
 }
