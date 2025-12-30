@@ -54,13 +54,16 @@ git clone --recurse-submodules https://github.com/leon-sir/catkin_height_scanner
 
 
 安装依赖
+```bash
 sudo apt-get install libpcl-dev
 sudo apt-get install libeigen3-dev
 sudo apt-get install ros-$ROS_DISTRO-grid-map
 其他依赖
 sudo apt-get install ros-$ROS_DISTRO-eigen-conversions
+```
 
 ## 逐个安葬并修改
+```bash
 cd <your-ros-ws>/src
 git clone https://github.com/anybotics/kindr.git
 git clone git@github.com:anybotics/kindr.git
@@ -82,7 +85,7 @@ git clone git@github.com:anybotics/point_cloud_io.git
 
 git clone https://github.com/Livox-SDK/livox_ros_driver2.git
 git clone git@github.com:Livox-SDK/livox_ros_driver2.git
-
+```
 
 <!-- cd ..
 catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release
@@ -98,7 +101,8 @@ source /opt/ros/noetic/setup.sh
 ## 可能遇到的兼容性问题及解决方案
 ***
 “./build.sh“文件
-pushd `pwd` > /dev/null
+```bash
+58 pushd `pwd` > /dev/null
 if [ $ROS_VERSION = ${VERSION_ROS1} ]; then
     cd ../../
     catkin_make -DROS_EDITION=${VERSION_ROS1}
@@ -106,9 +110,11 @@ if [ $ROS_VERSION = ${VERSION_ROS1} ]; then
     为
     catkin_make_isolated -DROS_EDITION=${VERSION_ROS1}
     ...
+```
 
 再运行一遍./build.sh ROS1 
-此时，为未定义build type的包
+此时，为未定义build type的4个包
+<build_type condition="$ROS_VERSION == 2">ament_cmake</build_type>上面添加：
   <export>
     <build_type condition="$ROS_VERSION == 1">catkin</build_type>
     ...
@@ -123,6 +129,7 @@ source devel_isolated/setup.bash
 调整激光雷达高度姿态
 
 调整 src/livox_ros_driver2/config/MID360_config.json 
+```bash
 "lidar_configs" : [
     {
       "ip" : "192.168.1.173",
@@ -132,13 +139,18 @@ source devel_isolated/setup.bash
         "roll": XXX.0,
         "pitch": XXX.0,
         "yaw": ...
-
-```bash
-roslaunch livox_ros_driver2 rviz_MID360.launch
 ```
 
+```bash
+# mid360可视化，看个热闹点云的
+roslaunch livox_ros_driver2 rviz_MID360.launch
+
+# elevation mapping pkg demo用（记得取消注释）
 roslaunch elevation_mapping_demos ground_truth_demo.launch
-roslaunch elevation_mapping_demos mid360_elevation_mapping.launch
+
+# mid360 高程图可视化
+roslaunch mid_360_elevation_mapping mid360_elevation_mapping.launch
+```
 
 
 mid360设置：
